@@ -5,6 +5,7 @@
 #define LIBLINEAR_TEST_SOLVER_SOFTMAX_H
 
 #include "linear.h"
+#include "Function_SOFTMAX.h"
 
 
 class Solver_SOFTMAX
@@ -14,7 +15,7 @@ class Solver_SOFTMAX
 		//eta = 0.000001 for pendigits
 		//eta = 0.01 for real-sim will generate NaN error
 		~Solver_SOFTMAX();
-		void Solve(double *w, double *obj);
+		void Solve(double *w, double *obj, Function_SOFTMAX *func);
 
 	int max_iter;
 

@@ -5,14 +5,14 @@
 #define LIBLINEAR_TEST_SOLVER_ME_DUAL_H
 
 #include "linear.h"
-
+#include "Function_SOFTMAX.h"
 
 class Solver_ME_DUAL
 {
 	public:
 	  Solver_ME_DUAL(const problem *prob, int nr_class, double C, double eps = 0.01, int max_iter = 100, double eta_value = 0.5, int max_trial = 20, double initial = 1e-10, int max_inner_iter = 100);
 		~Solver_ME_DUAL();
-		void Solve(double *w, double *obj);
+		void Solve(double *w, double *obj, Function_SOFTMAX *func);
 
 	int max_iter;
 

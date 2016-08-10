@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="CPP_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$">
+      <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Function_SOFTMAX.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Function_SOFTMAX.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver_EG.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver_EG.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver_ME_DUAL.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver_ME_DUAL.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver_NEW.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver_NEW.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver_SOFTMAX.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver_SOFTMAX.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/blas/blas.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/blas/blasp.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/blas/daxpy.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/blas/ddot.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/blas/dnrm2.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/blas/dscal.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/linear.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/linear.h" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/main.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/predict.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/train.c" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tron.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/tron.h" isTestSource="false" />
+    </content>
+    <orderEntry type="inheritedJdk" />
+    <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="module-library">
+      <library name="Header Search Paths">
+        <CLASSES>
+          <root url="file:///usr/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/4.7/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/4.7/include-fixed" />
+          <root url="file:///usr/local/include" />
+        </CLASSES>
+        <SOURCES>
+          <root url="file:///usr/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/4.7/include" />
+          <root url="file:///usr/lib/gcc/x86_64-linux-gnu/4.7/include-fixed" />
+          <root url="file:///usr/local/include" />
+        </SOURCES>
+      </library>
+    </orderEntry>
+  </component>
+</module>

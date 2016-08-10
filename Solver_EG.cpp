@@ -7,6 +7,9 @@
 #include <string.h>
 #include <stdarg.h>
 #include <locale.h>
+#include <time.h>
+#include <algorithm>
+#include <iostream>
 //////////////////////////////////////////////
 
 Solver_EG::Solver_EG(const problem *prob, int nr_class, double C, double eps, int max_iter, double eta_value, int max_trial, double initial)
@@ -53,7 +56,7 @@ Solver_EG::~Solver_EG()
 	delete [] norm_list;
 }
 
-void Solver_EG::Solve(double *w, double *obj)
+void Solver_EG::Solve(double *w, double *obj, Function_SOFTMAX *func)
 {
 	/*
 	int *perm = Malloc(int, l);
@@ -65,12 +68,19 @@ void Solver_EG::Solve(double *w, double *obj)
 	int *perm = new int[l];
 	//double *obj = new double[max_iter+1];
 	double *grad = new double[nr_class];
+	double *grad_w = new double[w_size];
 	double *output = new double[nr_class];
 	//double *probability = new double[nr_class];
 	//double *norm_term = new double[nr_class];
   //double sum = 0;
   //int id;
+	double *v = new double[nr_class];
 
+	double timer = 0;
+	double grad_norm;
+	double primal;
+	double dual;
+	double accuracy;
 
   //initialize alpha
   for(int i = 0; i < alpha_size; i++)
@@ -119,6 +129,8 @@ void Solver_EG::Solve(double *w, double *obj)
 	int iter = 0;
 	for(; iter < max_iter; iter++)
 	{
+		double start = clock();
+
 		//permutation
 		for(int i = 0; i < l; i++)
 		{
@@ -138,10 +150,31 @@ void Solver_EG::Solve(double *w, double *obj)
 		//online exponentiated gradient
 		for(int order = 0; order < l; order++)
 		{
+
 			int id = perm[order];
 			feature_node *xi;
 			int yi = prob->y[id];
 			id_current = id;
+
+			// calculate v_y = w(alpha)^T f(x_i, y)
+			for(int iter_class = 0; iter_class < nr_class; iter_class++)
+			{
+				v[iter_class] = 0;
+			}
+			xi = prob->x[id];
+			while(xi->index != -1)
+			{
+				int index = xi->index - 1;
+				double value = xi->value;
+				for(int iter_class = 0; iter_class < nr_class; iter_class++)
+				{
+					v[iter_class] += w[index*nr_class+iter_class] * value;
+				}
+				++xi;
+			}
+
+			int LRATE_MAXCUTS = 8;
+			int num_remaining_cuts = (iter==1)? 2 : LRATE_MAXCUTS;
 
       for(int iter_trial = 0; iter_trial < max_trial; iter_trial++)
 			{
@@ -150,9 +183,10 @@ void Solver_EG::Solve(double *w, double *obj)
         //compute gradient
 				for(int iter_class = 0; iter_class < nr_class; iter_class++)
 				{
-					grad[iter_class] = 0;
+					grad[iter_class] = 1 + log(alpha[id*nr_class+iter_class]) + v[yi] - v[iter_class];
 				}
 				// w^T * ( f(x_i,y_i) - f(x_i,y) )
+				/*
 				while(xi->index != -1)
 				{
 					int index = xi->index - 1;
@@ -171,12 +205,14 @@ void Solver_EG::Solve(double *w, double *obj)
 				{
 					grad[iter_class] += 1 + log(alpha[id*nr_class+iter_class]);
 				}
+				*/
 
 				//compute alpha_new
 				double sum = 0;
         for(int iter_class = 0; iter_class < nr_class; iter_class++)
 				{
 					output[iter_class] = alpha[id*nr_class+iter_class] * exp(- eta[id] * grad[iter_class]);
+					output[iter_class] = std::max(1e-100, output[iter_class]);
 					sum += output[iter_class];
 				}
 				for(int iter_class = 0; iter_class < nr_class; iter_class++)
@@ -184,9 +220,9 @@ void Solver_EG::Solve(double *w, double *obj)
 					alpha_new[iter_class] = output[iter_class] / sum;
 				}
 
-				if(compute_dual_dif(w) <= 0)
+				if(compute_dual_dif(v) < 0)
 				{
-					eta[id] *= 1.05;
+					eta[id] *= 1.01;
 					
 					//update w
 					xi = prob->x[id];
@@ -213,21 +249,43 @@ void Solver_EG::Solve(double *w, double *obj)
 				}
 				else
 				{
-					eta[id] /= 2;
+					if(num_remaining_cuts > 0)
+					{
+						eta[id] *= 0.5;
+						num_remaining_cuts --;
+					}
+					else
+					{
+						break;
+					}
 				}
 			}
 
 		}
 		// one epoch of eg
-		
+
+		timer += clock() - start;
+
+		primal = func->obj_primal(w);
+		dual = func->obj_dual(alpha, w);
+
+
+		func->grad(w, grad_w, &grad_norm);
+
+		accuracy = func->testing(w);
+
+		std::cout << iter << '\t' << timer << '\t' << primal << '\t' << dual << '\t' << accuracy << '\t' << grad_norm << std::endl;
+
     //compute objective
 		obj[iter+1] = compute_obj(w);
 
+		/*
 		double dif = fabs((obj[iter+1]-obj[iter])/obj[iter]);
 		if(iter>5 && dif <= eps)
 		{
 			break;
 		}
+		 */
 	}
 
 	obj[iter+1] = -1;
@@ -235,9 +293,11 @@ void Solver_EG::Solve(double *w, double *obj)
 	//delete [] norm_term;
 	//delete [] probability;
 	delete [] grad;
+	delete [] grad_w;
 	//delete [] obj;
   delete [] perm;
 	delete [] output;
+	delete [] v;
 
 }
 
@@ -305,7 +365,7 @@ double Solver_EG::compute_obj(double *w)
 	return obj;
 }
 
-double Solver_EG::compute_dual_dif(double *w)
+double Solver_EG::compute_dual_dif(double *v)
 {
 	double dual_dif = 0;
   
@@ -334,7 +394,8 @@ double Solver_EG::compute_dual_dif(double *w)
 
 		term_1 = alpha_new[iter_class] * log(alpha_new[iter_class]);
 		term_2 = alpha[id_current*nr_class+iter_class] * log(alpha[id_current*nr_class+iter_class]);
-		
+
+		/*
 		term_3 = 0;
 		xi = prob->x[id_current];
 		while(xi->index != -1)
@@ -345,6 +406,8 @@ double Solver_EG::compute_dual_dif(double *w)
 			++xi;
 		}
 		term_3 *= alpha_dif;
+		 */
+		term_3 = (alpha_new[iter_class] - alpha[id_current*nr_class+iter_class]) * v[iter_class];
 
     term_4 = 0.5 * alpha_dif*alpha_dif * norm_list[id_current];
 

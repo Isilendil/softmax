@@ -4,6 +4,7 @@
 #include "Solver_EG.h"
 #include "Solver_ME_DUAL.h"
 #include "Solver_NEW.h"
+#include "Function_SOFTMAX.h"
 ///////////////////////////////////////////////////////
 
 #include <math.h>
@@ -2380,7 +2381,11 @@ model* train(const problem *prob, const parameter *param)
 			model_->obj = Malloc(double, Solver.max_iter+2);
 			model_->max_iter = Solver.max_iter;
 
-			Solver.Solve(model_->w, model_->obj);
+			Function_SOFTMAX *func = new Function_SOFTMAX(&sub_prob, &sub_prob, nr_class, weighted_C[0]);
+
+			Solver.Solve(model_->w, model_->obj, func);
+
+			delete func;
 		}
 		else if(param->solver_type == EG)
 		{
@@ -2394,7 +2399,12 @@ model* train(const problem *prob, const parameter *param)
 			model_->obj = Malloc(double, Solver.max_iter+2);
 			model_->max_iter = Solver.max_iter;
 
-			Solver.Solve(model_->w, model_->obj);
+
+			Function_SOFTMAX *func = new Function_SOFTMAX(&sub_prob, &sub_prob, nr_class, weighted_C[0]);
+
+			Solver.Solve(model_->w, model_->obj, func);
+
+			delete func;
 		}		
 		else if(param->solver_type == ME_DUAL)
 		{
@@ -2408,7 +2418,11 @@ model* train(const problem *prob, const parameter *param)
 			model_->obj = Malloc(double, Solver.max_iter+2);
 			model_->max_iter = Solver.max_iter;
 
-			Solver.Solve(model_->w, model_->obj);
+			Function_SOFTMAX *func = new Function_SOFTMAX(&sub_prob, &sub_prob, nr_class, weighted_C[0]);
+
+			Solver.Solve(model_->w, model_->obj, func);
+
+			delete func;
 		}
 		//////////////////////////////////////////////
 		else

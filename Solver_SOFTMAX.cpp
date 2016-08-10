@@ -7,6 +7,8 @@
 #include <string.h>
 #include <stdarg.h>
 #include <locale.h>
+#include <time.h>
+#include <iostream>
 //////////////////////////////////////////////
 
 Solver_SOFTMAX::Solver_SOFTMAX(const problem *prob, int nr_class, double C, double eps, int max_iter, double eta)
@@ -28,7 +30,7 @@ Solver_SOFTMAX::~Solver_SOFTMAX()
 {
 }
 
-void Solver_SOFTMAX::Solve(double *w, double *obj)
+void Solver_SOFTMAX::Solve(double *w, double *obj, Function_SOFTMAX *func)
 {
 	/*
 	int *perm = Malloc(int, l);
@@ -45,6 +47,13 @@ void Solver_SOFTMAX::Solve(double *w, double *obj)
   double sum = 0;
   //int id;
 
+	double timer = 0;
+	double primal;
+	double dual;
+	double grad_norm;
+	double accuracy;
+	double *grad_w = new double[w_size];
+
 	for(int i = 0; i < w_size; i++)
 		w[i] = 0;
 		
@@ -55,6 +64,8 @@ void Solver_SOFTMAX::Solve(double *w, double *obj)
 	int iter = 0;
 	for(; iter < max_iter; iter++)
 	{
+		double start = clock();
+
 		//permutation
 		for(int i = 0; i < l; i++)
 		{
@@ -134,14 +145,25 @@ void Solver_SOFTMAX::Solve(double *w, double *obj)
 
 		}
 		// one epoch of sgd
-		
+
+		timer += clock() - start;
+
+		primal = func->obj_primal(w);
+		accuracy = func->testing(w);
+
+		func->grad(w, grad_w, &grad_norm);
+
+		std::cout << iter << '\t' << timer << '\t' << primal << '\t' << dual << '\t' << accuracy << '\t' << grad_norm << std::endl;
+
     //compute objective
 		obj[iter+1] = compute_obj(w);
 
+		/*
 		if(iter>5 && (fabs(obj[iter+1]-obj[iter])/obj[iter] <= eps) )
 		{
 			break;
 		}
+		 */
 	}
 
 	obj[iter+1] = -1;
@@ -149,6 +171,7 @@ void Solver_SOFTMAX::Solve(double *w, double *obj)
 	delete [] norm_term;
 	delete [] probability;
 	delete [] grad;
+	delete [] grad_w;
 	//delete [] obj;
   delete [] perm;
 

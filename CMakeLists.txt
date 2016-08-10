@@ -25,7 +25,7 @@ set(SOURCE_FILES
     Solver_ME_DUAL.cpp
     Solver_NEW.h
     Solver_NEW.cpp
-)
+        Function_SOFTMAX.cpp Function_SOFTMAX.h)
 
 add_executable(train ${SOURCE_FILES})
 
@@ -50,7 +50,7 @@ set(SOURCE_FILES
     Solver_ME_DUAL.cpp
     Solver_NEW.h
     Solver_NEW.cpp
-)
+        Function_SOFTMAX.cpp Function_SOFTMAX.h)
 
 
 add_executable(predict ${SOURCE_FILES})
@@ -77,7 +77,7 @@ set(SOURCE_FILES
     Solver_ME_DUAL.cpp
     Solver_NEW.h
     Solver_NEW.cpp
-)
+        Function_SOFTMAX.cpp Function_SOFTMAX.h)
 
 
 add_executable(main ${SOURCE_FILES})

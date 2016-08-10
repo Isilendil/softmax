@@ -8,6 +8,9 @@
 #include <stdarg.h>
 #include <locale.h>
 #include <algorithm>
+#include <time.h>
+
+#include <iostream>
 //////////////////////////////////////////////
 
 Solver_ME_DUAL::Solver_ME_DUAL(const problem *prob, int nr_class, double C, double eps, int max_iter, double eta_value, int max_trial, double initial, int max_inner_iter)
@@ -49,7 +52,7 @@ Solver_ME_DUAL::~Solver_ME_DUAL()
 	delete [] norm_list;
 }
 
-void Solver_ME_DUAL::Solve(double *w, double *obj)
+void Solver_ME_DUAL::Solve(double *w, double *obj, Function_SOFTMAX *func)
 {
 	/*
 	int *perm = Malloc(int, l);
@@ -61,6 +64,9 @@ void Solver_ME_DUAL::Solve(double *w, double *obj)
 	int *perm = new int[l];
 	//double *obj = new double[max_iter+1];
 	double *grad = new double[nr_class];
+
+	double *grad_w = new double[w_size];
+
 	double *output = new double[nr_class];
 	//double *probability = new double[nr_class];
 	//double *norm_term = new double[nr_class];
@@ -70,7 +76,15 @@ void Solver_ME_DUAL::Solve(double *w, double *obj)
 	double *z = new double[nr_class];
 	double *G = new double[nr_class];
 
+
+
   double g_eps = 0.5;
+
+	double timer = 0;
+	double grad_norm;
+	double primal;
+	double dual;
+	double accuracy;
 
   //initialize alpha
   for(int i = 0; i < alpha_size; i++)
@@ -121,6 +135,9 @@ void Solver_ME_DUAL::Solve(double *w, double *obj)
 	int iter = 0;
 	for(; iter < max_iter; iter++)
 	{
+
+		double start = clock();
+
 		//permutation
 		for(int i = 0; i < l; i++)
 		{
@@ -275,14 +292,27 @@ void Solver_ME_DUAL::Solve(double *w, double *obj)
 
 		}
 		// one epoch of dual coordinate descent
+
+		timer += clock() - start;
+
+		primal = func->obj_primal(w);
+		dual = func->obj_dual(alpha, w);
+
+		func->grad(w, grad_w, &grad_norm);
+
+		accuracy = func->testing(w);
+
+		std::cout << iter << '\t' << timer << '\t' << primal << '\t' << dual << '\t' << accuracy << '\t' << grad_norm << std::endl;
 		
     //compute objective
 		obj[iter+1] = compute_obj(w);
 
+		/*
 		if(iter>5 && (fabs(obj[iter+1]-obj[iter])/obj[iter] <= eps) )
 		{
 			break;
 		}
+		 */
 	}
 
 	obj[iter+1] = -1;
@@ -290,6 +320,7 @@ void Solver_ME_DUAL::Solve(double *w, double *obj)
 	//delete [] norm_term;
 	//delete [] probability;
 	delete [] grad;
+	delete [] grad_w;
 	//delete [] obj;
   delete [] perm;
 	delete [] output;
