@@ -274,7 +274,8 @@ void Solver_EG::Solve(double *w, double *obj, Function_SOFTMAX *func)
 
 		accuracy = func->testing(w);
 
-		std::cout << iter << '\t' << timer << '\t' << primal << '\t' << dual << '\t' << accuracy << '\t' << grad_norm << std::endl;
+		std::cout << iter << '\t' << timer << '\t' << primal << '\t' << dual;
+		std::cout << '\t' << accuracy << '\t' << grad_norm << std::endl;
 
     //compute objective
 		obj[iter+1] = compute_obj(w);

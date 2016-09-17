@@ -470,7 +470,7 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 
   ///////////////////////////////////////
 	//new method
-	sprintf(input_file_name, "~/data/multiclass/softmax/%s", argv[i]);
+	sprintf(input_file_name, "/Users/yanyg/data/multiclass/softmax/%s", argv[i]);
 	//strcpy(input_file_name, argv[i]);
 	
 	sprintf(model_file_name, "model/%s.model", argv[i]);
@@ -536,7 +536,7 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 				break;
 			/////////////////////////////////////////////////////
 			//new method
-			case SOFTMAX:
+			case SGD:
 			case EG:
 			case ME_DUAL:
 			case NEW:

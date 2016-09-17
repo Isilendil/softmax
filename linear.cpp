@@ -1,6 +1,6 @@
 ///////////////////////////////////////////////////////
 //new method
-#include "Solver_SOFTMAX.h"
+#include "Solver_SGD.h"
 #include "Solver_EG.h"
 #include "Solver_ME_DUAL.h"
 #include "Solver_NEW.h"
@@ -2334,6 +2334,69 @@ model* train(const problem *prob, const parameter *param)
 			x[i] = prob->x[perm[i]];
 
 		int k;
+        problem sub_prob;
+		sub_prob.l = l;
+		sub_prob.n = n;
+		sub_prob.x = Malloc(feature_node *, sub_prob.l);
+        sub_prob.y = Malloc(double, sub_prob.l);
+		for(k = 0; k < sub_prob.l; k++)
+			sub_prob.x[k] = x[k];
+		for(int i=0;i<nr_class;i++)
+		{
+			for (j = start[i]; j < start[i] + count[i]; j++)
+			{
+				sub_prob.y[j] = i;
+			}
+		}
+
+
+        problem train_prob;
+        problem test_prob;
+
+		train_prob.l = l / 5 * 4;
+		train_prob.n = n;
+		train_prob.x = Malloc(feature_node *, train_prob.l);
+		train_prob.y = Malloc(double, train_prob.l);
+
+		test_prob.l = l - l/5*4;
+		test_prob.n = n;
+		test_prob.x = Malloc(feature_node *, test_prob.l);
+        test_prob.y = Malloc(double, test_prob.l);
+
+		//permutation
+		for(int i = 0; i < l; i++)
+		{
+			perm[i] = i;
+		}
+
+		for(int i = 0; i < l; i++)
+		{
+			int j = i + rand()%(l-i);
+			//swap(perm[i], perm[j]);
+			int temp = perm[i];
+			perm[i] = perm[j];
+			perm[j] = temp;
+		}
+
+		int id;
+		for(int order = 0; order < l; order++)
+		{
+			id = perm[order];
+			if (order < train_prob.l)
+			{
+				train_prob.x[order] = sub_prob.x[id];
+				train_prob.y[order] = sub_prob.y[id];
+			}
+			else
+			{
+                test_prob.x[order-train_prob.l] = sub_prob.x[id];
+				test_prob.y[order-train_prob.l] = sub_prob.y[id];
+			}
+		}
+
+
+
+		/*
 		problem sub_prob;
 		sub_prob.l = l;
 		sub_prob.n = n;
@@ -2353,35 +2416,30 @@ model* train(const problem *prob, const parameter *param)
 			Solver_MCSVM_CS Solver(&sub_prob, nr_class, weighted_C, param->eps);
 			Solver.Solve(model_->w);
 		}
+		 */
 		//////////////////////////////////////////////
 		//new method
-		else if(param->solver_type == NEW)
+		if(param->solver_type == NEW)
 		{
 			model_->w=Malloc(double, n*nr_class);
 
-			for(i=0;i<nr_class;i++)
-				for(j=start[i];j<start[i]+count[i];j++)
-					sub_prob.y[j] = i;
-      Solver_NEW Solver(&sub_prob, nr_class, weighted_C[0]);
+            Solver_NEW Solver(&train_prob, nr_class, weighted_C[0]);
 
 			model_->obj = Malloc(double, Solver.max_iter+2);
 			model_->max_iter = Solver.max_iter;
 
 			Solver.Solve(model_->w, model_->obj);
 		}
-		else if(param->solver_type == SOFTMAX)
+		else if(param->solver_type == SGD)
 		{
 			model_->w=Malloc(double, n*nr_class);
 
-			for(i=0;i<nr_class;i++)
-				for(j=start[i];j<start[i]+count[i];j++)
-					sub_prob.y[j] = i;
-      Solver_SOFTMAX Solver(&sub_prob, nr_class, weighted_C[0]);
+      Solver_SGD Solver(&train_prob, nr_class, weighted_C[0]);
 
 			model_->obj = Malloc(double, Solver.max_iter+2);
 			model_->max_iter = Solver.max_iter;
 
-			Function_SOFTMAX *func = new Function_SOFTMAX(&sub_prob, &sub_prob, nr_class, weighted_C[0]);
+			Function_SOFTMAX *func = new Function_SOFTMAX(&train_prob, &test_prob, nr_class, weighted_C[0]);
 
 			Solver.Solve(model_->w, model_->obj, func);
 
@@ -2391,16 +2449,13 @@ model* train(const problem *prob, const parameter *param)
 		{
 			model_->w = Malloc(double, n*nr_class);
 
-			for(i=0;i<nr_class;i++)
-				for(j=start[i];j<start[i]+count[i];j++)
-					sub_prob.y[j] = i;
-      Solver_EG Solver(&sub_prob, nr_class, weighted_C[0]);
+      Solver_EG Solver(&train_prob, nr_class, weighted_C[0]);
 
 			model_->obj = Malloc(double, Solver.max_iter+2);
 			model_->max_iter = Solver.max_iter;
 
 
-			Function_SOFTMAX *func = new Function_SOFTMAX(&sub_prob, &sub_prob, nr_class, weighted_C[0]);
+			Function_SOFTMAX *func = new Function_SOFTMAX(&train_prob, &test_prob, nr_class, weighted_C[0]);
 
 			Solver.Solve(model_->w, model_->obj, func);
 
@@ -2410,76 +2465,75 @@ model* train(const problem *prob, const parameter *param)
 		{
 			model_->w = Malloc(double, n*nr_class);
 
-			for(i=0;i<nr_class;i++)
-				for(j=start[i];j<start[i]+count[i];j++)
-					sub_prob.y[j] = i;
-      Solver_ME_DUAL Solver(&sub_prob, nr_class, weighted_C[0]);
+      Solver_ME_DUAL Solver(&train_prob, nr_class, weighted_C[0]);
 
 			model_->obj = Malloc(double, Solver.max_iter+2);
 			model_->max_iter = Solver.max_iter;
 
-			Function_SOFTMAX *func = new Function_SOFTMAX(&sub_prob, &sub_prob, nr_class, weighted_C[0]);
+			Function_SOFTMAX *func = new Function_SOFTMAX(&train_prob, &test_prob, nr_class, weighted_C[0]);
 
 			Solver.Solve(model_->w, model_->obj, func);
 
 			delete func;
 		}
 		//////////////////////////////////////////////
-		else
-		{
-			if(nr_class == 2)
-			{
-				model_->w=Malloc(double, w_size);
+		/*
+    else
+    {
+        if(nr_class == 2)
+        {
+            model_->w=Malloc(double, w_size);
 
-				int e0 = start[0]+count[0];
-				k=0;
-				for(; k<e0; k++)
-					sub_prob.y[k] = +1;
-				for(; k<sub_prob.l; k++)
-					sub_prob.y[k] = -1;
-				
-				if(param->init_sol != NULL)
-					for(i=0;i<w_size;i++)
-						model_->w[i] = param->init_sol[i];
-				else
-					for(i=0;i<w_size;i++)
-						model_->w[i] = 0;
+            int e0 = start[0]+count[0];
+            k=0;
+            for(; k<e0; k++)
+                sub_prob.y[k] = +1;
+            for(; k<sub_prob.l; k++)
+                sub_prob.y[k] = -1;
 
-				train_one(&sub_prob, param, model_->w, weighted_C[0], weighted_C[1]);
-			}
-			else
-			{
-				model_->w=Malloc(double, w_size*nr_class);
-				double *w=Malloc(double, w_size);
-				for(i=0;i<nr_class;i++)
-				{
-					int si = start[i];
-					int ei = si+count[i];
+            if(param->init_sol != NULL)
+                for(i=0;i<w_size;i++)
+                    model_->w[i] = param->init_sol[i];
+            else
+                for(i=0;i<w_size;i++)
+                    model_->w[i] = 0;
 
-					k=0;
-					for(; k<si; k++)
-						sub_prob.y[k] = -1;
-					for(; k<ei; k++)
-						sub_prob.y[k] = +1;
-					for(; k<sub_prob.l; k++)
-						sub_prob.y[k] = -1;
+            train_one(&sub_prob, param, model_->w, weighted_C[0], weighted_C[1]);
+        }
+        else
+        {
+            model_->w=Malloc(double, w_size*nr_class);
+            double *w=Malloc(double, w_size);
+            for(i=0;i<nr_class;i++)
+            {
+                int si = start[i];
+                int ei = si+count[i];
 
-					if(param->init_sol != NULL)
-						for(j=0;j<w_size;j++)
-							w[j] = param->init_sol[j*nr_class+i];
-					else
-						for(j=0;j<w_size;j++)
-							w[j] = 0;
+                k=0;
+                for(; k<si; k++)
+                    sub_prob.y[k] = -1;
+                for(; k<ei; k++)
+                    sub_prob.y[k] = +1;
+                for(; k<sub_prob.l; k++)
+                    sub_prob.y[k] = -1;
 
-					train_one(&sub_prob, param, w, weighted_C[i], param->C);
+                if(param->init_sol != NULL)
+                    for(j=0;j<w_size;j++)
+                        w[j] = param->init_sol[j*nr_class+i];
+                else
+                    for(j=0;j<w_size;j++)
+                        w[j] = 0;
 
-					for(int j=0;j<w_size;j++)
-						model_->w[j*nr_class+i] = w[j];
-				}
-				free(w);
-			}
+                train_one(&sub_prob, param, w, weighted_C[i], param->C);
 
-		}
+                for(int j=0;j<w_size;j++)
+                    model_->w[j*nr_class+i] = w[j];
+            }
+            free(w);
+        }
+
+    }
+         */
 
 		free(x);
 		free(label);
@@ -2488,6 +2542,12 @@ model* train(const problem *prob, const parameter *param)
 		free(perm);
 		free(sub_prob.x);
 		free(sub_prob.y);
+		free(train_prob.x);
+		free(train_prob.y);
+		free(test_prob.x);
+		free(test_prob.y);
+		//free(sub_prob.x);
+		//free(sub_prob.y);
 		free(weighted_C);
 	}
 	return model_;
@@ -2718,7 +2778,7 @@ double predict_values(const struct model *model_, const struct feature_node *x, 
 	//
 	////////////////////////////////////////////////
 	//new method
-	if(model_->param.solver_type == SOFTMAX || model_->param.solver_type == EG || model_->param.solver_type == ME_DUAL || model_->param.solver_type == NEW)
+	if(model_->param.solver_type == SGD || model_->param.solver_type == EG || model_->param.solver_type == ME_DUAL || model_->param.solver_type == NEW)
 	{
 		const feature_node *lx = x;
 
@@ -2840,7 +2900,7 @@ static const char *solver_type_table[]=
 {
 	"L2R_LR", "L2R_L2LOSS_SVC_DUAL", "L2R_L2LOSS_SVC", "L2R_L1LOSS_SVC_DUAL", "MCSVM_CS",
 	"L1R_L2LOSS_SVC", "L1R_LR", "L2R_LR_DUAL",
-	"SOFTMAX", "EG", "ME_DUAL",
+	"SGD", "EG", "ME_DUAL",
 	"L2R_L2LOSS_SVR", "L2R_L2LOSS_SVR_DUAL", "L2R_L1LOSS_SVR_DUAL", 
 	"NEW", 
 	NULL
@@ -2875,7 +2935,7 @@ int save_model(const char *model_file_name, const struct model *model_)
 	switch (model_->param.solver_type)
 	{
 		case  MCSVM_CS :
-		case  SOFTMAX :
+		case  SGD :
 		case  EG :
 		case  ME_DUAL :
 		case  NEW :
@@ -2918,7 +2978,7 @@ int save_model(const char *model_file_name, const struct model *model_)
 
     ////////////////////////////////////////////////
 	//new method
-    if (model_->param.solver_type == SOFTMAX || model_->param.solver_type == EG || model_->param.solver_type == ME_DUAL || model_->param.solver_type == NEW)
+    if (model_->param.solver_type == SGD || model_->param.solver_type == EG || model_->param.solver_type == ME_DUAL || model_->param.solver_type == NEW)
 	{
 	  fprintf(fp, "obj\n");
 	  for(i=0; i<model_->max_iter+2; i++)
@@ -3056,7 +3116,7 @@ struct model *load_model(const char *model_file_name)
 	switch (param.solver_type)
 	{
 		case  MCSVM_CS :
-		case  SOFTMAX :
+		case  SGD :
 		case  EG :
 		case  ME_DUAL :
 		case  NEW :
@@ -3212,7 +3272,7 @@ const char *check_parameter(const problem *prob, const parameter *param)
 		//new method
 		//&& param->solver_type != L2R_L1LOSS_SVR_DUAL)
 		&& param->solver_type != L2R_L1LOSS_SVR_DUAL
-		&& param->solver_type != SOFTMAX
+		&& param->solver_type != SGD
 		&& param->solver_type != EG
 		&& param->solver_type != ME_DUAL
 		&& param->solver_type != NEW)

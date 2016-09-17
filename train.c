@@ -344,7 +344,7 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 				break;
 			/////////////////////////////////////////////////////
 			//new method
-			case SOFTMAX:
+			case SGD:
 			case EG:
 			  param.eps = 0.001;
 				break;

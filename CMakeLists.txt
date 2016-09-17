@@ -17,8 +17,8 @@ set(SOURCE_FILES
     train.c
     tron.cpp
     tron.h
-    Solver_SOFTMAX.cpp
-    Solver_SOFTMAX.h
+    Solver_SGD.cpp
+    Solver_SGD.h
     Solver_EG.cpp
     Solver_EG.h
     Solver_ME_DUAL.h
@@ -42,8 +42,8 @@ set(SOURCE_FILES
     #train.c
     tron.cpp
     tron.h
-    Solver_SOFTMAX.cpp
-    Solver_SOFTMAX.h
+    Solver_SGD.cpp
+    Solver_SGD.h
     Solver_EG.cpp
     Solver_EG.h
     Solver_ME_DUAL.h
@@ -69,8 +69,8 @@ set(SOURCE_FILES
     main.cpp
     tron.cpp
     tron.h
-    Solver_SOFTMAX.cpp
-    Solver_SOFTMAX.h
+    Solver_SGD.cpp
+    Solver_SGD.h
     Solver_EG.cpp
     Solver_EG.h
     Solver_ME_DUAL.h
