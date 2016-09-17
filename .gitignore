@@ -25,5 +25,8 @@
 
 # Executables
 *.exe
-*.out
 *.app
+
+# project
+*.model
+*.out

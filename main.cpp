@@ -470,12 +470,12 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 
   ///////////////////////////////////////
 	//new method
-	sprintf(input_file_name, "data/%s", argv[i]);
+	sprintf(input_file_name, "~/data/multiclass/softmax/%s", argv[i]);
 	//strcpy(input_file_name, argv[i]);
 	
 	sprintf(model_file_name, "model/%s.model", argv[i]);
 
-	sprintf(output_file_name, "output/%s", argv[i]);
+	sprintf(output_file_name, "output/%s.out", argv[i]);
 	/*
 	if(i<argc-1)
 		strcpy(model_file_name,argv[i+1]);
