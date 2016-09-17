@@ -13,26 +13,7 @@
     </ADDITIONAL_GENERATION_ENVIRONMENT>
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="b318594c-3c47-4931-8b61-0f3eda53bdd6" name="Default" comment="">
-      <change type="DELETED" beforePath="$PROJECT_DIR$/data/a9a" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/data/pendigits" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/data/real-sim" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/data/usps" afterPath="" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/Solver_SOFTMAX.cpp" afterPath="$PROJECT_DIR$/Solver_SGD.cpp" />
-      <change type="MOVED" beforePath="$PROJECT_DIR$/Solver_SOFTMAX.h" afterPath="$PROJECT_DIR$/Solver_SGD.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/softmax.iml" afterPath="$PROJECT_DIR$/.idea/softmax.iml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/CMakeLists.txt" afterPath="$PROJECT_DIR$/CMakeLists.txt" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Function_SOFTMAX.cpp" afterPath="$PROJECT_DIR$/Function_SOFTMAX.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/Solver_EG.cpp" afterPath="$PROJECT_DIR$/Solver_EG.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/linear.cpp" afterPath="$PROJECT_DIR$/linear.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/linear.h" afterPath="$PROJECT_DIR$/linear.h" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/main.cpp" afterPath="$PROJECT_DIR$/main.cpp" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/model/a9a.model" afterPath="$PROJECT_DIR$/model/a9a.model" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/model/pendigits.model" afterPath="$PROJECT_DIR$/model/pendigits.model" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/model/usps.model" afterPath="$PROJECT_DIR$/model/usps.model" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/train.c" afterPath="$PROJECT_DIR$/train.c" />
-    </list>
+    <list default="true" id="b318594c-3c47-4931-8b61-0f3eda53bdd6" name="Default" comment="" />
     <ignored path="softmax.iws" />
     <ignored path=".idea/workspace.xml" />
     <option name="EXCLUDED_CONVERTED_TO_IGNORED" value="true" />
@@ -64,8 +45,8 @@
       <file leaf-file-name="linear.cpp" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/linear.cpp">
           <provider selected="true" editor-type-id="text-editor">
-            <state relative-caret-position="135">
-              <caret line="2369" column="8" selection-start-line="2369" selection-start-column="8" selection-end-line="2369" selection-end-column="8" />
+            <state relative-caret-position="390">
+              <caret line="2386" column="31" selection-start-line="2386" selection-start-column="31" selection-end-line="2386" selection-end-column="31" />
               <folding>
                 <element signature="e#69#92#0" expanded="true" />
               </folding>
@@ -437,12 +418,20 @@
       <option name="presentableId" value="Default" />
       <updated>1470295620612</updated>
       <workItem from="1474106111123" duration="1817000" />
-      <workItem from="1474107980427" duration="13985000" />
+      <workItem from="1474107980427" duration="14549000" />
     </task>
+    <task id="LOCAL-00001" summary="201609172230">
+      <created>1474122688627</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1474122688627</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="15802000" />
+    <option name="totallyTimeSpent" value="16366000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="4" y="23" width="1263" height="1001" extended-state="0" />
@@ -478,6 +467,10 @@
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="201609172230" />
+    <option name="LAST_COMMIT_MESSAGE" value="201609172230" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -780,8 +773,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/linear.cpp">
       <provider selected="true" editor-type-id="text-editor">
-        <state relative-caret-position="135">
-          <caret line="2369" column="8" selection-start-line="2369" selection-start-column="8" selection-end-line="2369" selection-end-column="8" />
+        <state relative-caret-position="390">
+          <caret line="2386" column="31" selection-start-line="2386" selection-start-column="31" selection-end-line="2386" selection-end-column="31" />
           <folding>
             <element signature="e#69#92#0" expanded="true" />
           </folding>
