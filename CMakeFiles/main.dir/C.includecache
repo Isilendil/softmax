@@ -1,0 +1,32 @@
+#IncludeRegexLine: ^[ 	]*#[ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+/Users/yanyg/workspace/softmax/code/blas/blas.h
+blasp.h
+/Users/yanyg/workspace/softmax/code/blas/blasp.h
+
+/Users/yanyg/workspace/softmax/code/blas/blasp.h
+
+/Users/yanyg/workspace/softmax/code/blas/daxpy.c
+blas.h
+/Users/yanyg/workspace/softmax/code/blas/blas.h
+
+/Users/yanyg/workspace/softmax/code/blas/ddot.c
+blas.h
+/Users/yanyg/workspace/softmax/code/blas/blas.h
+
+/Users/yanyg/workspace/softmax/code/blas/dnrm2.c
+math.h
+-
+blas.h
+/Users/yanyg/workspace/softmax/code/blas/blas.h
+
+/Users/yanyg/workspace/softmax/code/blas/dscal.c
+blas.h
+/Users/yanyg/workspace/softmax/code/blas/blas.h
+

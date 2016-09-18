@@ -156,6 +156,8 @@ void Solver_EG::Solve(double *w, double *obj, Function_SOFTMAX *func)
 			int yi = prob->y[id];
 			id_current = id;
 
+			eta[id] *= 0.97;
+
 			// calculate v_y = w(alpha)^T f(x_i, y)
 			for(int iter_class = 0; iter_class < nr_class; iter_class++)
 			{
@@ -222,7 +224,7 @@ void Solver_EG::Solve(double *w, double *obj, Function_SOFTMAX *func)
 
 				if(compute_dual_dif(v) < 0)
 				{
-					eta[id] *= 1.01;
+					eta[id] *= 1.000;
 					
 					//update w
 					xi = prob->x[id];

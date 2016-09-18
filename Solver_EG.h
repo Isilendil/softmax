@@ -10,7 +10,8 @@
 class Solver_EG
 {
 	public:
-	  Solver_EG(const problem *prob, int nr_class, double C, double eps = 0.01, int max_iter = 200, double eta_value = 0.5, int max_trial = 20, double initial = 1e-8);
+	  Solver_EG(const problem *prob, int nr_class, double C, double eps = 0.000001, \
+	    int max_iter = 500, double eta_value = 1.0/4/4, int max_trial = 10, double initial = 1e-20);
 		~Solver_EG();
 		void Solve(double *w, double *obj, Function_SOFTMAX *func);
 

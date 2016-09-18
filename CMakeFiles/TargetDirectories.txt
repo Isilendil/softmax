@@ -1,0 +1,5 @@
+/Users/yanyg/workspace/softmax/code/CMakeFiles/edit_cache.dir
+/Users/yanyg/workspace/softmax/code/CMakeFiles/rebuild_cache.dir
+/Users/yanyg/workspace/softmax/code/CMakeFiles/train.dir
+/Users/yanyg/workspace/softmax/code/CMakeFiles/main.dir
+/Users/yanyg/workspace/softmax/code/CMakeFiles/predict.dir
