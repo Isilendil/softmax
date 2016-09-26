@@ -5,22 +5,23 @@
 #define LIBLINEAR_TEST_SOLVER_NEW_H
 
 #include "linear.h"
-
+#include "Function_SOFTMAX.h"
 
 class Solver_NEW
 {
 	public:
-	  Solver_NEW(const problem *prob, int nr_class, double C, double eps = 0.00001, int max_iter = 100, double eta_value = 0.5, int max_trial = 20, double initial = 1e-10, int max_inner_iter = 20, int update_index_size = 4);
+	  Solver_NEW(const problem *prob, int nr_class, double C, double eps = 1e-20, \
+	   int max_iter = 1000, \
+        double initial = 1e-10, int max_inner_iter = 50, int max_newton_iter = 5);
 		~Solver_NEW();
-		void Solve(double *w, double *obj);
+    void Solve(double *w, double *obj, Function_SOFTMAX *func);
 
 	int max_iter;
 
 	private:
-	void solve_sub_problem(double a, double b, double c, double *pd);
+	//void solve_sub_problem();
 	double compute_obj(double *w);
 
-	void adjust_stepsize(double *d, double *upper, double *lower);
   //double compute_dual_dif(double *w);
 
 	int w_size;
@@ -29,27 +30,22 @@ class Solver_NEW
 	double eps;
 	double C;
 
-	double *eta;
 
 	const problem *prob;
 	int n;
 
 	int alpha_size;
 	double *alpha;
-	double *alpha_new;
 
-  int max_trial;
-	double initial;
-
-	int id_current;
 
 	int max_inner_iter;
+    int max_newton_iter;
 
-	int update_index_size;
-	
+
 	double *norm_list;
+
+    double pi;
 	
-	//double *delta_f;
 };
 #endif //LIBLINEAR_TEST_SOLVER_NEW_H
 

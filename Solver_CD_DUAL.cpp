@@ -1,6 +1,6 @@
 //////////////////////////////////////////////
 //dual coordinate descent for maximum entropy models
-#include "Solver_ME_DUAL.h"
+#include "Solver_CD_DUAL.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +13,8 @@
 #include <iostream>
 //////////////////////////////////////////////
 
-Solver_ME_DUAL::Solver_ME_DUAL(const problem *prob, int nr_class, double C, double eps, int max_iter, double eta_value, int max_trial, double initial, int max_inner_iter)
+Solver_CD_DUAL::Solver_CD_DUAL(const problem *prob, int nr_class, double C, double eps, int max_iter, \
+   double initial, int max_inner_iter, int max_newton_iter)
 {
 	this->prob = prob;
 	this->nr_class = nr_class;
@@ -31,11 +32,11 @@ Solver_ME_DUAL::Solver_ME_DUAL(const problem *prob, int nr_class, double C, doub
 	
 	//alpha_new = new double[nr_class];
 
-  this->max_trial = max_trial;
 	this->initial = initial;
 
 
-	this->max_inner_iter = max_inner_iter;
+	this->max_inner_iter = max_inner_iter * nr_class;
+    this->max_newton_iter = max_newton_iter;
 
 
 	norm_list = new double[l];
@@ -45,14 +46,14 @@ Solver_ME_DUAL::Solver_ME_DUAL(const problem *prob, int nr_class, double C, doub
 	}
 }
 
-Solver_ME_DUAL::~Solver_ME_DUAL()
+Solver_CD_DUAL::~Solver_CD_DUAL()
 {
 	delete [] alpha;
 	//delete [] alpha_new;
 	delete [] norm_list;
 }
 
-void Solver_ME_DUAL::Solve(double *w, double *obj, Function_SOFTMAX *func)
+void Solver_CD_DUAL::Solve(double *w, double *obj, Function_SOFTMAX *func)
 {
 	/*
 	int *perm = Malloc(int, l);
@@ -78,7 +79,7 @@ void Solver_ME_DUAL::Solve(double *w, double *obj, Function_SOFTMAX *func)
 
 
 
-  double g_eps = 0.5;
+  double g_eps = 1e-5;
 
 	double timer = 0;
 	double grad_norm;
@@ -331,7 +332,7 @@ void Solver_ME_DUAL::Solve(double *w, double *obj, Function_SOFTMAX *func)
 
 }
 
-void Solver_ME_DUAL::solve_sub_problem(double a, double b, double c_1, double c_2, double *z_1, double *z_2)
+void Solver_CD_DUAL::solve_sub_problem(double a, double b, double c_1, double c_2, double *z_1, double *z_2)
 {
 	double s = c_1 + c_2;
   double z_middle = 0.5 * (c_2 - c_1);
@@ -350,7 +351,7 @@ void Solver_ME_DUAL::solve_sub_problem(double a, double b, double c_1, double c_
 	}
 	//xi in the paper
 	const double eta = 0.1;
-	double innereps = 1e-3;
+	double innereps = 1e-7;
 
 	double g_1;
 	double g_2;
@@ -358,7 +359,7 @@ void Solver_ME_DUAL::solve_sub_problem(double a, double b, double c_1, double c_
 
 	//a new modified Newton method for (18)
 	int inner_iter;
-	for(inner_iter = 0; inner_iter < max_inner_iter; inner_iter++)
+	for(inner_iter = 0; inner_iter < max_newton_iter; inner_iter++)
 	{
 		//g'(z_t) = log(z_t/(s-z_t)) + a(z_t-c_t) + b_t
 		g_1 = log(z/(s-z)) + a*(z-c) + sign*b;
@@ -399,7 +400,7 @@ void Solver_ME_DUAL::solve_sub_problem(double a, double b, double c_1, double c_
 	}
 }
 
-double Solver_ME_DUAL::compute_obj(double *w)
+double Solver_CD_DUAL::compute_obj(double *w)
 {
 	double obj = 0;
 
@@ -460,7 +461,7 @@ double Solver_ME_DUAL::compute_obj(double *w)
 }
 
 /*
-double Solver_ME_DUAL::compute_dual_dif(double *w)
+double Solver_CD_DUAL::compute_dual_dif(double *w)
 {
 	double dual_dif = 0;
   

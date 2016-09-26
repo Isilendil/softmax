@@ -3,12 +3,12 @@
   <component name="NewModuleRootManager">
     <content url="file://$MODULE_DIR$">
       <sourceFolder url="file://$MODULE_DIR$/Solver_SGD.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Solver_ME_DUAL.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Solver_NEW.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver_NEW.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver_CD_DUAL.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/CMakeLists.txt" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver_EG.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver_SGD.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver_CD_DUAL.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/linear.h" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Function_SOFTMAX.cpp" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/Solver_EG.cpp" isTestSource="false" />
@@ -25,7 +25,7 @@
       <sourceFolder url="file://$MODULE_DIR$/train.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/predict.c" isTestSource="false" />
       <sourceFolder url="file://$MODULE_DIR$/tron.h" isTestSource="false" />
-      <sourceFolder url="file://$MODULE_DIR$/Solver_ME_DUAL.cpp" isTestSource="false" />
+      <sourceFolder url="file://$MODULE_DIR$/Solver_NEW.h" isTestSource="false" />
     </content>
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="module-library">

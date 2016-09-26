@@ -2,7 +2,7 @@
 //new method
 #include "Solver_SGD.h"
 #include "Solver_EG.h"
-#include "Solver_ME_DUAL.h"
+#include "Solver_CD_DUAL.h"
 #include "Solver_NEW.h"
 #include "Function_SOFTMAX.h"
 ///////////////////////////////////////////////////////
@@ -2428,13 +2428,17 @@ model* train(const problem *prob, const parameter *param)
 			model_->obj = Malloc(double, Solver.max_iter+2);
 			model_->max_iter = Solver.max_iter;
 
-			Solver.Solve(model_->w, model_->obj);
+			Function_SOFTMAX *func = new Function_SOFTMAX(&train_prob, &test_prob, nr_class, weighted_C[0]);
+
+			Solver.Solve(model_->w, model_->obj, func);
+
+			delete func;
 		}
 		else if(param->solver_type == SGD)
 		{
 			model_->w=Malloc(double, n*nr_class);
 
-      Solver_SGD Solver(&train_prob, nr_class, weighted_C[0]);
+            Solver_SGD Solver(&train_prob, nr_class, weighted_C[0]);
 
 			model_->obj = Malloc(double, Solver.max_iter+2);
 			model_->max_iter = Solver.max_iter;
@@ -2449,7 +2453,7 @@ model* train(const problem *prob, const parameter *param)
 		{
 			model_->w = Malloc(double, n*nr_class);
 
-      Solver_EG Solver(&train_prob, nr_class, weighted_C[0]);
+            Solver_EG Solver(&train_prob, nr_class, weighted_C[0]);
 
 			model_->obj = Malloc(double, Solver.max_iter+2);
 			model_->max_iter = Solver.max_iter;
@@ -2461,11 +2465,11 @@ model* train(const problem *prob, const parameter *param)
 
 			delete func;
 		}		
-		else if(param->solver_type == ME_DUAL)
+		else if(param->solver_type == CD_DUAL)
 		{
 			model_->w = Malloc(double, n*nr_class);
 
-      Solver_ME_DUAL Solver(&train_prob, nr_class, weighted_C[0]);
+            Solver_CD_DUAL Solver(&train_prob, nr_class, weighted_C[0]);
 
 			model_->obj = Malloc(double, Solver.max_iter+2);
 			model_->max_iter = Solver.max_iter;
@@ -2778,7 +2782,7 @@ double predict_values(const struct model *model_, const struct feature_node *x, 
 	//
 	////////////////////////////////////////////////
 	//new method
-	if(model_->param.solver_type == SGD || model_->param.solver_type == EG || model_->param.solver_type == ME_DUAL || model_->param.solver_type == NEW)
+	if(model_->param.solver_type == SGD || model_->param.solver_type == EG || model_->param.solver_type == CD_DUAL || model_->param.solver_type == NEW)
 	{
 		const feature_node *lx = x;
 
@@ -2900,7 +2904,7 @@ static const char *solver_type_table[]=
 {
 	"L2R_LR", "L2R_L2LOSS_SVC_DUAL", "L2R_L2LOSS_SVC", "L2R_L1LOSS_SVC_DUAL", "MCSVM_CS",
 	"L1R_L2LOSS_SVC", "L1R_LR", "L2R_LR_DUAL",
-	"SGD", "EG", "ME_DUAL",
+	"SGD", "EG", "CD_DUAL",
 	"L2R_L2LOSS_SVR", "L2R_L2LOSS_SVR_DUAL", "L2R_L1LOSS_SVR_DUAL", 
 	"NEW", 
 	NULL
@@ -2937,7 +2941,7 @@ int save_model(const char *model_file_name, const struct model *model_)
 		case  MCSVM_CS :
 		case  SGD :
 		case  EG :
-		case  ME_DUAL :
+		case  CD_DUAL :
 		case  NEW :
 			nr_w = model_->nr_class;
 			break;
@@ -2978,7 +2982,7 @@ int save_model(const char *model_file_name, const struct model *model_)
 
     ////////////////////////////////////////////////
 	//new method
-    if (model_->param.solver_type == SGD || model_->param.solver_type == EG || model_->param.solver_type == ME_DUAL || model_->param.solver_type == NEW)
+    if (model_->param.solver_type == SGD || model_->param.solver_type == EG || model_->param.solver_type == CD_DUAL || model_->param.solver_type == NEW)
 	{
 	  fprintf(fp, "obj\n");
 	  for(i=0; i<model_->max_iter+2; i++)
@@ -3118,7 +3122,7 @@ struct model *load_model(const char *model_file_name)
 		case  MCSVM_CS :
 		case  SGD :
 		case  EG :
-		case  ME_DUAL :
+		case  CD_DUAL :
 		case  NEW :
 			nr_w = nr_class;
 			break;
@@ -3274,7 +3278,7 @@ const char *check_parameter(const problem *prob, const parameter *param)
 		&& param->solver_type != L2R_L1LOSS_SVR_DUAL
 		&& param->solver_type != SGD
 		&& param->solver_type != EG
-		&& param->solver_type != ME_DUAL
+		&& param->solver_type != CD_DUAL
 		&& param->solver_type != NEW)
 		////////////////////////////////////////////////
 		return "unknown solver type";
