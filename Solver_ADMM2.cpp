@@ -1,6 +1,6 @@
 //////////////////////////////////////////////
 //dual coordinate descent for softmax regression
-#include "Solver_NEW.h"
+#include "Solver_ADMM2.h"
 #include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
@@ -13,7 +13,7 @@
 #include <iostream>
 //////////////////////////////////////////////
 
-Solver_NEW::Solver_NEW(const problem *prob, int nr_class, double C, double eps, int max_iter, \
+Solver_ADMM2::Solver_ADMM2(const problem *prob, int nr_class, double C, double eps, int max_iter, \
   double initial, int max_inner_iter, int max_newton_iter)
 {
 	this->prob = prob;
@@ -44,13 +44,13 @@ Solver_NEW::Solver_NEW(const problem *prob, int nr_class, double C, double eps, 
 	}
 }
 
-Solver_NEW::~Solver_NEW()
+Solver_ADMM2::~Solver_ADMM2()
 {
 	delete [] alpha;
 	//delete [] alpha_new;
 	delete [] norm_list;
 }
-void Solver_NEW::Solve(double *w, double *obj, Function_SOFTMAX *func)
+void Solver_ADMM2::Solve(double *w, double *obj, Function_SOFTMAX *func)
 {
 	/*
 	int *perm = Malloc(int, l);
@@ -74,14 +74,14 @@ void Solver_NEW::Solve(double *w, double *obj, Function_SOFTMAX *func)
 	double *d = new double[nr_class];
     double *z = new double[nr_class];
     double *lambda = new double[nr_class+1];
-    double rho = 1e-3;
+    double rho = 1;
 
     /*
     // gradient descent
     double rho = 1e-6;
     */
-    double eps_z = 1e-10;
-    double eps_lambda = 1e-10;
+    double eps_z = 1e-8;
+    double eps_lambda = 1e-8;
 
     double *q = new double[nr_class];
     double *G = new double[nr_class];
@@ -94,6 +94,7 @@ void Solver_NEW::Solve(double *w, double *obj, Function_SOFTMAX *func)
     double dual;
     double accuracy;
 
+    double factor = 0.99;
 
     double *alpha_new = new double [alpha_size];
     //initialize alpha
@@ -214,30 +215,16 @@ void Solver_NEW::Solve(double *w, double *obj, Function_SOFTMAX *func)
                     }
                     for(int i = 0; i < nr_class; i++)
                     {
+                        //compute first-order derivatives
                         alpha_temp = alpha[id*nr_class+i];
                         G[i] = C*norm_list[id]*d[i] + rho*(sum_d+d[i]);
                         G[i] += C*q[i] + lambda[0]+lambda[i] - rho*z[i];
-                        if(i == yi)
-                        {
-                            alpha_temp = 1 - alpha_temp - d[i];
-                        }
-                        else
-                        {
-                           alpha_temp = -alpha_temp - d[i];
-                        }
-                        G[i] += 1 - log(alpha_temp);
+
+                        //compute second-order derivatives
+                        //diagonal approximation
+                        GG[i] = C*norm_list[id] + rho*2;
                     }
 
-                    //compute second-order derivatives
-                    //diagonal approximation
-                    for(int i = 0; i < nr_class; i++)
-                    {
-                        GG[i] = C*norm_list[id] + rho*2 + 1/(-alpha[id*nr_class+i]-d[i]);
-                        if(i == yi)
-                        {
-                            GG[i] = C*norm_list[id] + rho*2 + 1/(1-alpha[id*nr_class+i]-d[i]);
-                        }
-                    }
 
                     //inverse Hessian matrix
                     //
@@ -248,51 +235,56 @@ void Solver_NEW::Solve(double *w, double *obj, Function_SOFTMAX *func)
                         //d[i] -= rho * G[i]/GG[i];
                         //d[i] -= G[i]/GG[i];
                         //d[i] -= rho * G[i];
-                        double d_temp = d[i] - 0.2* G[i]/GG[i];
+                        double d_temp = d[i] - 0.1 * G[i]/GG[i];
+                        //double d_temp = d[i] - 0.000000001 * G[i];
+                        d[i] = d_temp;
 
-                        double alpha_temp = alpha[id*nr_class+i] + d_temp;
-                        if(i == yi)
-                        {
-                            if(alpha_temp <= 0)
-                            {
-                                alpha_temp = eps;
-                            }
-                            else if(alpha_temp >= 1)
-                            {
-                                alpha_temp = 1 - eps;
-                            }
-                        }
-                        else
-                        {
-                            if(alpha_temp >= 0)
-                            {
-                                alpha_temp = 0 - eps;
-                            }
-                            else if(alpha_temp <= -1)
-                            {
-                                alpha_temp = -1 + eps;
-                            }
-                        }
-                        d[i] = alpha_temp - alpha[id*nr_class+i];
+
                     }
                 }
 
                 //update z
                 double z_temp;
                 double z_gap = 0;
+                double alpha_temp;
                 for(int i = 0; i < nr_class; i++)
                 {
-                    z_temp = lambda[i+1]/rho + d[i];
-                    //projection
-                    double alpha_temp = alpha[id*nr_class+i];
+                    G[i] = lambda[i+1] + rho*z[i] - rho*d[i];
+
+                    alpha_temp = alpha[id*nr_class+i];
                     if(i == yi)
                     {
-                        z_temp = std::min(1-alpha_temp, std::max(-alpha_temp, z_temp));
+                        alpha_temp = 1 - alpha_temp - z[i];
                     }
                     else
                     {
-                        z_temp = std::min(-alpha_temp, std::max(-1-alpha_temp, z_temp));
+                       alpha_temp = -alpha_temp - z[i];
                     }
+                    G[i] += 1 - log(alpha_temp);
+
+                    GG[i] = rho + 1/alpha_temp;
+
+                    z_temp = z[i] - 0.1 * G[i]/GG[i];
+                    //z_temp = z[i] - 0.00000001 * G[i];
+
+                    //projection
+                    //alpha_temp = alpha[id*nr_class+i] + z_temp;
+                    double alpha_old;
+                    alpha_old = alpha[id*nr_class+i];
+                    alpha_temp = alpha_old + z_temp;
+                    if (i == yi)
+                    {
+                        if (alpha_temp <= 0)
+                        {
+                            alpha_temp = alpha_old * (1-factor);
+                        }
+                        else if (alpha_temp >= 1)
+                        {
+                            alpha_temp = alpha_old*(1-factor) + factor;
+                        }
+                        //log_alpha = (1-alpha_temp) * log(1-alpha_temp);
+                    }
+                    z_temp = alpha_temp - alpha[id*nr_class+i];
                     z_gap += (z[i]-z_temp) * (z[i]-z_temp);
                     z[i] = z_temp;
                 }
@@ -328,14 +320,14 @@ void Solver_NEW::Solve(double *w, double *obj, Function_SOFTMAX *func)
                 double temp = 0;
                 for(int iter_class = 0; iter_class < nr_class; iter_class++)
                 {
-                    w[index*nr_class+iter_class] += d[iter_class] * value;
+                    w[index*nr_class+iter_class] += z[iter_class] * value;
                 }
                 ++xi;
             }
             //update alpha
             for(int iter_class = 0; iter_class < nr_class; iter_class++)
             {
-                alpha[id*nr_class+iter_class] += d[iter_class];
+                alpha[id*nr_class+iter_class] += z[iter_class];
             }
 
         }
@@ -397,7 +389,7 @@ void Solver_NEW::Solve(double *w, double *obj, Function_SOFTMAX *func)
 
 
 
-double Solver_NEW::compute_obj(double *w)
+double Solver_ADMM2::compute_obj(double *w)
 {
 	double obj = 0;
 

@@ -396,6 +396,11 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 	flag_find_C = 0;
 	bias = -1;
 
+    /////////////////////////////
+    // new method
+    param.eta = 0.000001;
+    /////////////////////////////
+
 	// parse options
 	for(i=1;i<argc;i++)
 	{
@@ -425,6 +430,14 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 			case 'B':
 				bias = atof(argv[i]);
 				break;
+
+			//////////////////////////////////////////////
+			// New method
+            // SGD learning rate
+            case 'r':
+                param.eta = atof(argv[i]);
+                break;
+            //////////////////////////////////////////////
 
 			case 'w':
 				++param.nr_weight;
@@ -539,7 +552,12 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 			case SGD:
 			case EG:
 			case CD_DUAL:
-			case NEW:
+			case ADMM:
+			case ALM:
+            case ALM_FW:
+            case FW:
+			case ADMM2:
+			case BLG_DUAL:
 			  param.eps = 0.001;
 				break;
 			/////////////////////////////////////////////////////

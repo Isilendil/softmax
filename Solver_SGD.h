@@ -11,7 +11,8 @@
 class Solver_SGD
 {
 	public:
-	  Solver_SGD(const problem *prob, int nr_class, double C, double eps = 0.00001, int max_iter = 1000, double eta = 0.00001);
+	  Solver_SGD(const problem *prob, int nr_class, double C, double eta, \
+	    double eps = 0.00001, int max_iter = 1000);
 		//eta = 0.000001 for pendigits
 		//eta = 0.01 for real-sim will generate NaN error
 		~Solver_SGD();

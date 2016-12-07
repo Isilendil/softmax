@@ -3,7 +3,12 @@
 #include "Solver_SGD.h"
 #include "Solver_EG.h"
 #include "Solver_CD_DUAL.h"
-#include "Solver_NEW.h"
+#include "Solver_ADMM.h"
+#include "Solver_ADMM2.h"
+#include "Solver_ALM.h"
+#include "Solver_ALM_FW.h"
+#include "Solver_FW.h"
+#include "Solver_BLG.h"
 #include "Function_SOFTMAX.h"
 ///////////////////////////////////////////////////////
 
@@ -2419,67 +2424,66 @@ model* train(const problem *prob, const parameter *param)
 		 */
 		//////////////////////////////////////////////
 		//new method
-		if(param->solver_type == NEW)
+        int max_iter = 1000;
+
+		model_->w = Malloc(double, n*nr_class);
+		model_->obj = Malloc(double, max_iter+2);
+		model_->max_iter = max_iter;
+
+		Function_SOFTMAX *func = new Function_SOFTMAX(&train_prob, &test_prob, nr_class, weighted_C[0]);
+
+		if(param->solver_type == BLG_DUAL)
 		{
-			model_->w=Malloc(double, n*nr_class);
-
-            Solver_NEW Solver(&train_prob, nr_class, weighted_C[0]);
-
-			model_->obj = Malloc(double, Solver.max_iter+2);
-			model_->max_iter = Solver.max_iter;
-
-			Function_SOFTMAX *func = new Function_SOFTMAX(&train_prob, &test_prob, nr_class, weighted_C[0]);
-
+			Solver_BLG Solver(&train_prob, nr_class, weighted_C[0]);
 			Solver.Solve(model_->w, model_->obj, func);
-
-			delete func;
+		}
+		if(param->solver_type == ALM_FW)
+		{
+			Solver_ALM_FW Solver(&train_prob, nr_class, weighted_C[0]);
+			Solver.Solve(model_->w, model_->obj, func);
+		}
+		if(param->solver_type == FW)
+		{
+			Solver_FW Solver(&train_prob, nr_class, weighted_C[0]);
+			Solver.Solve(model_->w, model_->obj, func);
+		}
+		if(param->solver_type == ALM)
+		{
+			Solver_ALM Solver(&train_prob, nr_class, weighted_C[0]);
+			Solver.Solve(model_->w, model_->obj, func);
+		}
+		if(param->solver_type == ADMM)
+		{
+			Solver_ADMM Solver(&train_prob, nr_class, weighted_C[0]);
+			Solver.Solve(model_->w, model_->obj, func);
+		}
+		if(param->solver_type == ADMM2)
+		{
+            Solver_ADMM2 Solver(&train_prob, nr_class, weighted_C[0]);
+			Solver.Solve(model_->w, model_->obj, func);
 		}
 		else if(param->solver_type == SGD)
 		{
-			model_->w=Malloc(double, n*nr_class);
-
-            Solver_SGD Solver(&train_prob, nr_class, weighted_C[0]);
-
-			model_->obj = Malloc(double, Solver.max_iter+2);
-			model_->max_iter = Solver.max_iter;
-
-			Function_SOFTMAX *func = new Function_SOFTMAX(&train_prob, &test_prob, nr_class, weighted_C[0]);
-
+            Solver_SGD Solver(&train_prob, nr_class, weighted_C[0], param->eta);
 			Solver.Solve(model_->w, model_->obj, func);
-
-			delete func;
 		}
 		else if(param->solver_type == EG)
 		{
-			model_->w = Malloc(double, n*nr_class);
-
             Solver_EG Solver(&train_prob, nr_class, weighted_C[0]);
-
-			model_->obj = Malloc(double, Solver.max_iter+2);
-			model_->max_iter = Solver.max_iter;
-
-
-			Function_SOFTMAX *func = new Function_SOFTMAX(&train_prob, &test_prob, nr_class, weighted_C[0]);
-
 			Solver.Solve(model_->w, model_->obj, func);
-
-			delete func;
-		}		
+		}
 		else if(param->solver_type == CD_DUAL)
 		{
-			model_->w = Malloc(double, n*nr_class);
-
             Solver_CD_DUAL Solver(&train_prob, nr_class, weighted_C[0]);
-
-			model_->obj = Malloc(double, Solver.max_iter+2);
-			model_->max_iter = Solver.max_iter;
-
-			Function_SOFTMAX *func = new Function_SOFTMAX(&train_prob, &test_prob, nr_class, weighted_C[0]);
-
 			Solver.Solve(model_->w, model_->obj, func);
-
-			delete func;
 		}
+		else if(param->solver_type == SGD)
+		{
+			Solver_SGD Solver(&train_prob, nr_class, weighted_C[0], param->eta);
+			Solver.Solve(model_->w, model_->obj, func);
+		}
+
+		delete func;
 		//////////////////////////////////////////////
 		/*
     else
@@ -2782,7 +2786,9 @@ double predict_values(const struct model *model_, const struct feature_node *x, 
 	//
 	////////////////////////////////////////////////
 	//new method
-	if(model_->param.solver_type == SGD || model_->param.solver_type == EG || model_->param.solver_type == CD_DUAL || model_->param.solver_type == NEW)
+	if(model_->param.solver_type == SGD || model_->param.solver_type == EG || model_->param.solver_type == CD_DUAL \
+      || model_->param.solver_type == ADMM || model_->param.solver_type == ADMM2 || model_->param.solver_type == ALM \
+      || model_->param.solver_type == ALM_FW || model_->param.solver_type == FW || model_->param.solver_type == BLG_DUAL)
 	{
 		const feature_node *lx = x;
 
@@ -2906,7 +2912,7 @@ static const char *solver_type_table[]=
 	"L1R_L2LOSS_SVC", "L1R_LR", "L2R_LR_DUAL",
 	"SGD", "EG", "CD_DUAL",
 	"L2R_L2LOSS_SVR", "L2R_L2LOSS_SVR_DUAL", "L2R_L1LOSS_SVR_DUAL", 
-	"NEW", 
+	"ADMM", "ADMM2", "ALM", "ALM_FW", "FW", "BLG_DUAL",
 	NULL
 };
 /////////////////////////////////////////////////////////
@@ -2942,7 +2948,12 @@ int save_model(const char *model_file_name, const struct model *model_)
 		case  SGD :
 		case  EG :
 		case  CD_DUAL :
-		case  NEW :
+		case  ADMM :
+		case  ADMM2 :
+		case  ALM :
+		case  ALM_FW :
+		case  FW :
+		case  BLG_DUAL :
 			nr_w = model_->nr_class;
 			break;
 		default :
@@ -2982,7 +2993,9 @@ int save_model(const char *model_file_name, const struct model *model_)
 
     ////////////////////////////////////////////////
 	//new method
-    if (model_->param.solver_type == SGD || model_->param.solver_type == EG || model_->param.solver_type == CD_DUAL || model_->param.solver_type == NEW)
+    if (model_->param.solver_type == SGD || model_->param.solver_type == EG || model_->param.solver_type == CD_DUAL \
+     || model_->param.solver_type == ADMM || model_->param.solver_type == ADMM2 || model_->param.solver_type == ALM \
+     || model_->param.solver_type == ALM_FW || model_->param.solver_type == FW || model_->param.solver_type == BLG_DUAL)
 	{
 	  fprintf(fp, "obj\n");
 	  for(i=0; i<model_->max_iter+2; i++)
@@ -3123,7 +3136,12 @@ struct model *load_model(const char *model_file_name)
 		case  SGD :
 		case  EG :
 		case  CD_DUAL :
-		case  NEW :
+		case  ADMM :
+		case  ADMM2 :
+		case  ALM :
+		case  ALM_FW :
+		case  FW :
+		case  BLG_DUAL :
 			nr_w = nr_class;
 			break;
 		default :
@@ -3279,7 +3297,12 @@ const char *check_parameter(const problem *prob, const parameter *param)
 		&& param->solver_type != SGD
 		&& param->solver_type != EG
 		&& param->solver_type != CD_DUAL
-		&& param->solver_type != NEW)
+	    && param->solver_type != ADMM
+		&& param->solver_type != ADMM2
+		&& param->solver_type != ALM
+	    && param->solver_type != ALM_FW
+	    && param->solver_type != BLG_DUAL
+	    && param->solver_type != FW)
 		////////////////////////////////////////////////
 		return "unknown solver type";
 

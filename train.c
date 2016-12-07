@@ -346,6 +346,13 @@ void parse_command_line(int argc, char **argv, char *input_file_name, char *mode
 			//new method
 			case SGD:
 			case EG:
+			case CD_DUAL:
+			case ADMM:
+			case ALM:
+			case ALM_FW:
+			case FW:
+			case ADMM2:
+			case BLG_DUAL:
 			  param.eps = 0.001;
 				break;
 			/////////////////////////////////////////////////////

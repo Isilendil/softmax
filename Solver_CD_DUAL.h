@@ -10,8 +10,9 @@
 class Solver_CD_DUAL
 {
 	public:
-	  Solver_CD_DUAL(const problem *prob, int nr_class, double C, double eps = 0.01, int max_iter = 1000, \
-	     double initial = 1e-10, int max_inner_iter = 5, int max_newton_iter = 20);
+	  Solver_CD_DUAL(const problem *prob, int nr_class, double C, double eps = 0.01, int max_iter = 200, \
+	     double initial = 1e-10, int max_inner_iter = 10, int max_newton_iter = 5);
+	     //double initial = 1e-10, int max_inner_iter = 5, int max_newton_iter = 20);
 		~Solver_CD_DUAL();
 		void Solve(double *w, double *obj, Function_SOFTMAX *func);
 

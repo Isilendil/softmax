@@ -11,7 +11,8 @@
 #include <iostream>
 //////////////////////////////////////////////
 
-Solver_SGD::Solver_SGD(const problem *prob, int nr_class, double C, double eps, int max_iter, double eta)
+Solver_SGD::Solver_SGD(const problem *prob, int nr_class, double C, double eta, \
+ double eps, int max_iter)
 {
 	this->prob = prob;
 	this->nr_class = nr_class;

@@ -1,19 +1,19 @@
 ///////////////////////////////////////////////////////
 //dual coordinate descent for softmax regression
 
-#ifndef LIBLINEAR_TEST_SOLVER_NEW_H
-#define LIBLINEAR_TEST_SOLVER_NEW_H
+#ifndef LIBLINEAR_TEST_SOLVER_BLG_H
+#define LIBLINEAR_TEST_SOLVER_BLG_H
 
 #include "linear.h"
 #include "Function_SOFTMAX.h"
 
-class Solver_NEW
+class Solver_BLG
 {
 	public:
-	  Solver_NEW(const problem *prob, int nr_class, double C, double eps = 1e-20, \
-	   int max_iter = 1000, \
-        double initial = 1e-10, int max_inner_iter = 50, int max_newton_iter = 5);
-		~Solver_NEW();
+	  Solver_BLG(const problem *prob, int nr_class, double C, double eps = 1e-20, \
+	   int max_iter = 200, \
+        double initial = 1e-10, int max_inner_iter = 5, int max_newton_iter = 5);
+		~Solver_BLG();
     void Solve(double *w, double *obj, Function_SOFTMAX *func);
 
 	int max_iter;
@@ -47,6 +47,6 @@ class Solver_NEW
     double pi;
 	
 };
-#endif //LIBLINEAR_TEST_SOLVER_NEW_H
+#endif //LIBLINEAR_TEST_SOLVER_BLG_H
 
 ///////////////////////////////////////////////////////
